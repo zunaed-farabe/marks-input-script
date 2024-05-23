@@ -1,0 +1,7 @@
+selenium==4.20.0
+pandas==2.2.1
+
+
+command = pyinstaller --noconfirm --onedir --console --collect-all "selenium, pandas"  "C:/Users/zubai/OneDrive/Desktop/marks input script/autoMarksInputScript.py"
+
+must = have selenium and pandas installed in the venv before running the command
