@@ -9,7 +9,7 @@ import traceback
 import pandas as pd
 import os
 from selenium.webdriver.common.keys import Keys
-def autoInputMarks(filename, username, password, semester, section):
+def autoInputMarks(filename, username, password, semester, section, serial):
 
      # Get the path to the directory containing the script
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -64,7 +64,10 @@ def autoInputMarks(filename, username, password, semester, section):
     # Find and select the course and section dropdown
     section_dropdown = Select(driver.find_element(By.ID, "sectionId"))
     # section_dropdown.select_by_visible_text("CSE 1360 - A")
-    section_dropdown.select_by_visible_text(section)
+    if serial==0:
+        section_dropdown.select_by_visible_text(section)
+    else:
+        section_dropdown.select_by_index(serial)
     driver.implicitly_wait(5)
 
     # Find and click the "Populate Students" button
@@ -108,7 +111,9 @@ def autoInputMarks(filename, username, password, semester, section):
     rows = tablebody.find_elements(By.TAG_NAME, 'tr')
     
     for row in marks.iterrows():
-    
+        print(row)
+        # print(row[0])
+        # print(row[1])
         student_id = row[1]["Student ID"]
         class_attendance_marks = row[1]["Class Attendance"]
         continuous_assessment_marks = row[1]["Continuous Assessment"]
@@ -124,10 +129,10 @@ def autoInputMarks(filename, username, password, semester, section):
     
                 # row_path = "/html/body/div[3]/div[2]/div/div[2]/div/div/form/div[2]/div[1]/div[1]/table/tbody"
                 # row_element = tablebody.find_element(By.XPATH, path)
-                class_attendance_input = tablebody.find_element(By.CSS_SELECTOR, f"#classAttendanceMarks{i}")
-                continuous_assessment_input = tablebody.find_element(By.CSS_SELECTOR, f"#continuousAssessmentMarks{i}")
-                mid_term_input = tablebody.find_element(By.CSS_SELECTOR, f"#midTermMarks{i}")
-                final_input = tablebody.find_element(By.CSS_SELECTOR,  f"#finalMarks{i}")
+                class_attendance_input = tablebody.find_element(By.CSS_SELECTOR, f"#classAttendanceMarks{i-1}")
+                continuous_assessment_input = tablebody.find_element(By.CSS_SELECTOR, f"#continuousAssessmentMarks{i-1}")
+                mid_term_input = tablebody.find_element(By.CSS_SELECTOR, f"#midTermMarks{i-1}")
+                final_input = tablebody.find_element(By.CSS_SELECTOR,  f"#finalMarks{i-1}")
                 
                 # Fill in the marks for the current student
                 class_attendance_input.clear()
@@ -164,19 +169,23 @@ def get_user_inputs():
     semester = input("Enter Semester: ")
     time.sleep(2)
     section = input("Enter section: ")
+    yes_no = input("Do you have multiple section with this same name? (y/n) ")
+    serial = 0
+    if yes_no=='y' or yes_no =="Y":
+        serial = input("Enter the Serial no. of the section in the dropdown list [1 or 2 or 3..] = ")
     time.sleep(2)
-    return filename, username, password, semester, section
+    return filename, username, password, semester, section, serial
 
 
 if __name__ == "__main__":
     
     
     time.sleep(5)
-    filename, username, password, semester, section = get_user_inputs()
+    filename, username, password, semester, section, serial = get_user_inputs()
     time.sleep(5)
     print("Input taked Successfully, Loading webpage")
     try:
-        autoInputMarks(filename, username, password, semester, section)
+        autoInputMarks(filename, username, password, semester, section, serial)
         
         pass
     except Exception as e:
